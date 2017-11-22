@@ -11,4 +11,5 @@ script:
 deploy:
   provider: surge
   project: ./build/
-  domain: awesome-pokedex.surge.sh  
+  domain: awesome-pokedex.surge.sh
+  skip_cleanup: true
