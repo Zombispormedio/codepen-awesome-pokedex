@@ -1,0 +1,19 @@
+{
+  "name": "codepen-event-bundle",
+  "version": "1.0.0",
+  "description": "Bundle for Codepen Project",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Zombispormedio/codepen-event-bundle.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Zombispormedio/codepen-event-bundle/issues"
+  },
+  "homepage": "https://github.com/Zombispormedio/codepen-event-bundle#readme"
+}
