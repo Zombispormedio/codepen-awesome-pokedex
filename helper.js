@@ -11,7 +11,9 @@ try {
         background: papayawhip;
     `;
 
-    const main = React.createElement(Wrapper, null, titleWithContent);
+    const img = React.createElement('img', {src: 'https://travis-ci.org/Zombispormedio/codepen-event-bundle.svg?branch=master'})
+
+    const main = React.createElement(Wrapper, null, [titleWithContent, img]);
     ReactDOM.render(
         main,
         document.getElementById('root')
