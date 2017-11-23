@@ -7,7 +7,7 @@ const size = require('gulp-size')
 const del = require('del')
 const inject = require('gulp-inject')
 const runSequence = require('run-sequence')
-const path  = require('path')
+const path = require('path')
 const R = require('ramda')
 const config = require('./vendor.config')
 const defaultToEmpty = R.defaultTo([])
@@ -33,20 +33,29 @@ gulp.task('build-js', function () {
         .pipe(gulp.dest('./build'))
 })
 
+const getJSPath = (file, start='after') => inject(gulp.src(`build/${file}`, {
+    read: false
+}), {
+    starttag: `<!-- inject:${start}:js -->`,
+    transform: function (filepath) {
+        return ` <script src="${path.basename(filepath)}"></script>`
+    }
+})
+
 gulp.task('build-html', function () {
     return gulp.src('index.html')
-        .pipe(inject(gulp.src('./build/**/*.js', {
-            read: false
-        }), {
-            transform: function (filepath) {
-                return ` <script src="${path.basename(filepath)}"></script>`
-            }
-        }))
+        .pipe(getJSPath('vendor.bundle.js', 'before'))
+        .pipe(getJSPath('helper.js'))
+        .pipe(gulp.dest('./build'))
+})
+
+gulp.task('build-js-helper', function () {
+    return gulp.src('helper.js')
         .pipe(gulp.dest('./build'))
 })
 
 gulp.task('build', function (callback) {
-    runSequence('build-clean', ['build-js'],
+    runSequence('build-clean', ['build-js', 'build-js-helper'],
         'build-html',
         callback);
 });
