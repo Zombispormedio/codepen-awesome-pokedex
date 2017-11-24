@@ -45,8 +45,8 @@ gulp.task('build-html', function () {
         .pipe(gulp.dest('./build'))
 })
 
-gulp.task('build-js-helper', function () {
-    return gulp.src('helper.js')
+gulp.task('assets', function () {
+    return gulp.src(['helper.js', 'favicon.ico'])
         .pipe(gulp.dest('./build'))
 })
 
@@ -63,8 +63,10 @@ gulp.task('build-js', function () {
 })
 
 gulp.task('build', function (callback) {
-    runSequence('build-clean', ['build-webpack', 'build-cdn'],
-        ['build-js', 'build-js-helper'],
+    runSequence('build-clean', 
+		'assets',
+		['build-webpack', 'build-cdn'],
+        'build-js',
         'build-html',
         callback);
 });
