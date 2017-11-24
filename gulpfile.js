@@ -7,6 +7,7 @@ const size = require('gulp-size')
 const del = require('del')
 const inject = require('gulp-inject')
 const runSequence = require('run-sequence')
+const webpack = require('webpack-stream')
 const path = require('path')
 const R = require('ramda')
 const config = require('./vendor.config')
@@ -14,26 +15,21 @@ const defaultToEmpty = R.defaultTo([])
 const view = R.curry(R.view)
 
 gulp.task('build-clean', function (cb) {
-    return del(['build'])
+    return del(['build', 'pre-build'])
 })
 
-const getJsFromCDN = () => R.pipe(view(R.lensPath(['fromCDN', 'js'])),
-    defaultToEmpty, download)(config)
-const getJsFromPackages = () => R.pipe(view(R.lensPath(['fromPackages', 'js'])),
-    defaultToEmpty, gulp.src)(config)
+const getJsFromCDN = () =>
+    R.pipe(view(R.lensPath(['fromCDN', 'js'])), defaultToEmpty, download)(config);
 
-gulp.task('build-js', function () {
-    return merge(
-            getJsFromCDN(),
-            getJsFromPackages()
-        )
+gulp.task('build-cdn', function () {
+    return getJsFromCDN()
         .pipe(buffer())
-        .pipe(concat('vendor.bundle.js'))
+        .pipe(concat('cdn.bundle.js'))
         .pipe(size())
-        .pipe(gulp.dest('./build'))
+        .pipe(gulp.dest('./pre-build'))
 })
 
-const getJSPath = (file, start='after') => inject(gulp.src(`build/${file}`, {
+const getJSPath = (file, start = 'after') => inject(gulp.src(`build/${file}`, {
     read: false
 }), {
     starttag: `<!-- inject:${start}:js -->`,
@@ -54,8 +50,21 @@ gulp.task('build-js-helper', function () {
         .pipe(gulp.dest('./build'))
 })
 
+gulp.task('build-webpack', function () {
+    return gulp.src('entry.js')
+        .pipe(webpack(require('./webpack.config.js')))
+        .pipe(gulp.dest('./pre-build'));
+})
+
+gulp.task('build-js', function () {
+    return gulp.src('pre-build/*.js')
+        .pipe(concat('vendor.bundle.js'))
+        .pipe(gulp.dest('./build'));
+})
+
 gulp.task('build', function (callback) {
-    runSequence('build-clean', ['build-js', 'build-js-helper'],
+    runSequence('build-clean', ['build-webpack', 'build-cdn'],
+        ['build-js', 'build-js-helper'],
         'build-html',
         callback);
 });

@@ -20,8 +20,13 @@
     "url": "https://github.com/Zombispormedio/codepen-event-bundle/issues"
   },
   "homepage": "https://github.com/Zombispormedio/codepen-event-bundle#readme",
-  "devDependencies": {},
-  "dependencies": {
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-react": "^6.24.1",
+    "webpack": "^3.8.1",
+    "webpack-stream": "^4.0.0",
     "del": "^3.0.0",
     "gulp": "^3.9.1",
     "gulp-concat": "^2.6.1",
@@ -30,7 +35,13 @@
     "gulp-merge": "^0.1.1",
     "gulp-size": "^2.1.0",
     "ramda": "^0.25.0",
-    "run-sequence": "^2.2.0",
-    "vinyl-buffer": "^1.0.0"
+    "vinyl-buffer": "^1.0.0",
+    "run-sequence": "^2.2.0"
+  },
+  "dependencies": {
+    "gulp-rename": "^1.2.2",
+    "react": "^16.1.1",
+    "react-custom-scrollbars": "^4.2.1",
+    "typography": "^0.16.6"
   }
 }
