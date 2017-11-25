@@ -70,3 +70,7 @@ gulp.task('build', function (callback) {
         'build-html',
         callback);
 });
+
+gulp.task('watch', function(){
+    gulp.watch('*.js', ['build']);
+})
