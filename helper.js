@@ -8,14 +8,14 @@ try {
       })
     typography.injectStyles()
 
-    const Title = styled.default.h1 `
+    const Title = styled.h1 `
         font-size: 1.5em;
         text-align: center;
         color: palevioletred;
     `;
     const titleWithContent = React.createElement(Title, { key: "title-with-content" }, "React and Styled Components works fine!")
 
-    const Wrapper = styled.default.section `
+    const Wrapper = styled.section `
         padding: 4em;
         background: papayawhip;
     `;
