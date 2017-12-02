@@ -9,13 +9,17 @@ module.exports = {
         filename: 'vendor.bundle.js'
     },
     resolve: {
-        extensions: ['.js'],
+        extensions: ['.js', '.css'],
     },
     module: {
         rules: [{
                 test: /\.js$/,
                 exclude: /node_modules/,
                 loader: "babel-loader"
+            },
+            {
+                test: /\.css$/,
+                use: ['style-loader', 'css-loader']
             }
         ]
     },
