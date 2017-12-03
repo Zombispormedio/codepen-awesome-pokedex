@@ -1,4 +1,4 @@
-const cacheVersion = 'cache-8';
+const cacheVersion = 'cache-10';
 self.addEventListener('install', function (event) {
   event.waitUntil(
     caches.open(cacheVersion).then(function (cache) {
@@ -11,8 +11,8 @@ self.addEventListener('install', function (event) {
         'https://unpkg.com/mdi@2.0.46/css/materialdesignicons.min.css',
         'https://fonts.gstatic.com/s/vt323/v9/lo_L7yCDHYN9FAxvMCI1vQ.woff2',
         'favicon.ico',
-        //'vendor.bundle.js',
-        //'app.processed.js'
+        'vendor.bundle.js',
+        'app.processed.js'
       ]);
     })
   );

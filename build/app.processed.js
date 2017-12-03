@@ -9111,9 +9111,9 @@
 	exports.Ripple = exports.Footer = exports.Main = exports.Header = exports.Wrapper = undefined;
 
 	var _templateObject = _taggedTemplateLiteral(['\n  background-color: rgb(238, 238, 238);\n  position: absolute;\n  width: 100%;\n  height: 100%;\n  display: flex;\n  flex-direction: column;\n'], ['\n  background-color: rgb(238, 238, 238);\n  position: absolute;\n  width: 100%;\n  height: 100%;\n  display: flex;\n  flex-direction: column;\n']),
-	    _templateObject2 = _taggedTemplateLiteral(['\n  background-color: #B71C1C;\n  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);\n  padding-left: ', ';\n  padding-right: ', ';\n  min-height: 3.5rem;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n'], ['\n  background-color: #B71C1C;\n  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);\n  padding-left: ', ';\n  padding-right: ', ';\n  min-height: 3.5rem;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n']),
-	    _templateObject3 = _taggedTemplateLiteral(['\n  font-size: 3em;\n  color: white;\n'], ['\n  font-size: 3em;\n  color: white;\n']),
-	    _templateObject4 = _taggedTemplateLiteral(['\n  color: white;\n  font-size: 2.5rem;\n  margin: 1rem;\n  line-height: 0.5;\n'], ['\n  color: white;\n  font-size: 2.5rem;\n  margin: 1rem;\n  line-height: 0.5;\n']),
+	    _templateObject2 = _taggedTemplateLiteral(['\n  background-color: #B71C1C;\n  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);\n  padding-left: ', ';\n  padding-right: ', ';\n  min-height: 3.5rem;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  @media (max-width: 500px) {\n      min-height: auto;\n  }\n'], ['\n  background-color: #B71C1C;\n  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);\n  padding-left: ', ';\n  padding-right: ', ';\n  min-height: 3.5rem;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  @media (max-width: 500px) {\n      min-height: auto;\n  }\n']),
+	    _templateObject3 = _taggedTemplateLiteral(['\n  font-size: 3em;\n  color: white;\n  @media (max-width: 500px) {\n    font-size: 2em;\n  }\n'], ['\n  font-size: 3em;\n  color: white;\n  @media (max-width: 500px) {\n    font-size: 2em;\n  }\n']),
+	    _templateObject4 = _taggedTemplateLiteral(['\n  color: white;\n  font-size: 2.5em;\n  margin: 1rem;\n  line-height: 0.5;\n  @media (max-width: 500px) {\n    font-size: 1em;\n  }\n'], ['\n  color: white;\n  font-size: 2.5em;\n  margin: 1rem;\n  line-height: 0.5;\n  @media (max-width: 500px) {\n    font-size: 1em;\n  }\n']),
 	    _templateObject5 = _taggedTemplateLiteral(['\n  display: flex;\n  flex-grow: 1;\n'], ['\n  display: flex;\n  flex-grow: 1;\n']),
 	    _templateObject6 = _taggedTemplateLiteral(['\n    display: flex;\n    align-items: center; \n    height: 10%;\n    background-color: #B71C1C;\n    padding: 0.5rem;\n'], ['\n    display: flex;\n    align-items: center; \n    height: 10%;\n    background-color: #B71C1C;\n    padding: 0.5rem;\n']),
 	    _templateObject7 = _taggedTemplateLiteral(['\n  color: white;\n'], ['\n  color: white;\n']),
@@ -9256,7 +9256,7 @@
 	          props = _objectWithoutProperties(_ref, ["style"]);
 
 	      var thumbStyle = {
-	        backgroundColor: "#c52941"
+	        backgroundColor: "#B71C1C"
 	      };
 	      return React.createElement("div", _extends({ style: _extends({}, style, thumbStyle) }, props));
 	    }
