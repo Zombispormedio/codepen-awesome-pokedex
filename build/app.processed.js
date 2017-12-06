@@ -8927,48 +8927,61 @@
 	"use strict";
 
 	Object.defineProperty(exports, "__esModule", {
-	    value: true
+	  value: true
 	});
 
 	var _ref2;
 
+	var _templateObject = _taggedTemplateLiteral(["\n  position: relative;\n  overflow: hidden;\n  transform: translate3d(0, 0, 0);\n\n  &:after {\n  content: \"\";\n  display: block;\n  position: absolute;\n  width: 100%;\n  height: 100%;\n  top: 0;\n  left: 0;\n  pointer-events: none;\n  background-image: radial-gradient(circle, #000 10%, transparent 10.01%);\n  background-repeat: no-repeat;\n  background-position: 50%;\n  transform: scale(10, 10);\n  opacity: 0;\n  transition: transform .5s, opacity 1s;\n}\n&:active:after {\n  transform: scale(0, 0);\n  opacity: .2;\n  transition: 0s;\n}\n"], ["\n  position: relative;\n  overflow: hidden;\n  transform: translate3d(0, 0, 0);\n\n  &:after {\n  content: \"\";\n  display: block;\n  position: absolute;\n  width: 100%;\n  height: 100%;\n  top: 0;\n  left: 0;\n  pointer-events: none;\n  background-image: radial-gradient(circle, #000 10%, transparent 10.01%);\n  background-repeat: no-repeat;\n  background-position: 50%;\n  transform: scale(10, 10);\n  opacity: 0;\n  transition: transform .5s, opacity 1s;\n}\n&:active:after {\n  transform: scale(0, 0);\n  opacity: .2;\n  transition: 0s;\n}\n"]);
+
 	exports.createReducer = createReducer;
+
+	function _taggedTemplateLiteral(strings, raw) { return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
 
 	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 	var POKEMON_COUNT = exports.POKEMON_COUNT = 802;
 	var getAvatarUrl = exports.getAvatarUrl = function getAvatarUrl(id) {
-	    return "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/" + id + ".png";
+	  return "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/" + id + ".png";
 	};
 	var registerServiceWorker = exports.registerServiceWorker = function registerServiceWorker() {
-	    navigator.serviceWorker.register("sw.js");
+	  navigator.serviceWorker.register("sw.js");
 	};
 	var globalStyles = exports.globalStyles = new Typography((_ref2 = {
-	    baseFontSize: "25px",
-	    baseLineHeight: 1.666,
-	    scaleRatio: 2
+	  baseFontSize: "25px",
+	  baseLineHeight: 1.666,
+	  scaleRatio: 2
 	}, _defineProperty(_ref2, "baseLineHeight", 1.5), _defineProperty(_ref2, "headerColor", "hsla(0,0%,0%,0.8)"), _defineProperty(_ref2, "headerFontFamily", ["VT323", "monospace"]), _defineProperty(_ref2, "headerWeight", 400), _defineProperty(_ref2, "bodyColor", "hsla(0,0%,0%,0.8)"), _defineProperty(_ref2, "bodyFontFamily", ["VT323", "monospace"]), _defineProperty(_ref2, "bodyWeight", 400), _defineProperty(_ref2, "overrideStyles", function overrideStyles(_ref, options, styles) {
-	    var adjustFontSizeTo = _ref.adjustFontSizeTo,
-	        rhythm = _ref.rhythm;
-	    return {
-	        html: {
-	            overflow: "hidden"
-	        }
-	    };
+	  var adjustFontSizeTo = _ref.adjustFontSizeTo,
+	      rhythm = _ref.rhythm;
+	  return {
+	    html: {
+	      overflow: "hidden"
+	    }
+	  };
 	}), _ref2));
 
 	function createReducer(initialState, handlers) {
-	    return function reducer() {
-	        var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialState;
-	        var action = arguments[1];
+	  return function reducer() {
+	    var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialState;
+	    var action = arguments[1];
 
-	        if (handlers.hasOwnProperty(action.type)) {
-	            return handlers[action.type](state, action);
-	        } else {
-	            return state;
-	        }
-	    };
+	    if (handlers.hasOwnProperty(action.type)) {
+	      return handlers[action.type](state, action);
+	    } else {
+	      return state;
+	    }
+	  };
 	}
+
+	var Ripple = exports.Ripple = styled.div(_templateObject);
+
+	var dbPromise = exports.dbPromise = idb.open('pokedex-db', 1, function (upgradeDb) {
+	  switch (upgradeDb.oldVersion) {
+	    case 0:
+	      upgradeDb.createObjectStore('pokemon', { keyPath: "id" });
+	  }
+		});
 
 /***/ }),
 /* 328 */
@@ -9010,8 +9023,8 @@
 	var loadPokemonListSuccessReducer = function loadPokemonListSuccessReducer(state, action) {
 	  return _extends({}, state, {
 	    loading: false,
-	    items: state.items.concat(mapper(action.items)),
-	    page: action.page,
+	    items: state.items.concat(action.items),
+	    page: state.page + 1,
 	    error: false
 	  });
 	};
@@ -9023,12 +9036,18 @@
 	  });
 	};
 
-	var addProperties = function addProperties(item) {
-	  return R.pipe(R.assoc('id', R.last(R.match(/\/([0-9]+)\//, item.url))), R.assoc('captured', false))(item);
+	var AVOID = function AVOID(state) {
+	  return state;
 	};
-	var mapper = R.map(addProperties);
 
-	var pokemonReducers = (0, _lib.createReducer)(INITIAL_POKEMON, (_createReducer = {}, _defineProperty(_createReducer, _actions.LOAD_POKEMON_LIST, loadPokemonListReducer), _defineProperty(_createReducer, _actions.LOAD_POKEMON_LIST_SUCCESS, loadPokemonListSuccessReducer), _defineProperty(_createReducer, _actions.LOAD_POKEMON_LIST_ERROR, loadPokemonListErrorReducer), _createReducer));
+	var capturePokemonSuccess = function capturePokemonSuccess(state, _ref) {
+	  var id = _ref.id;
+	  return _extends({}, state, {
+	    items: R.adjust(R.evolve({ captured: R.not }), R.findIndex(R.propEq('id', id), state.items), state.items)
+	  });
+	};
+
+	var pokemonReducers = (0, _lib.createReducer)(INITIAL_POKEMON, (_createReducer = {}, _defineProperty(_createReducer, _actions.LOAD_POKEMON_LIST, loadPokemonListReducer), _defineProperty(_createReducer, _actions.LOAD_POKEMON_LIST_SUCCESS, loadPokemonListSuccessReducer), _defineProperty(_createReducer, _actions.LOAD_POKEMON_LIST_ERROR, loadPokemonListErrorReducer), _defineProperty(_createReducer, _actions.CAPTURE_POKEMON, AVOID), _defineProperty(_createReducer, _actions.CAPTURE_POKEMON_SUCCESS, capturePokemonSuccess), _defineProperty(_createReducer, _actions.CAPTURE_POKEMON_ERROR, AVOID), _createReducer));
 
 	exports.default = combineReducers({
 	  pokemon: pokemonReducers
@@ -9041,17 +9060,26 @@
 	"use strict";
 
 	Object.defineProperty(exports, "__esModule", {
-	  value: true
+	    value: true
 	});
 	var LOAD_POKEMON_LIST = exports.LOAD_POKEMON_LIST = "LOAD_POKEMON";
 	var LOAD_POKEMON_LIST_SUCCESS = exports.LOAD_POKEMON_LIST_SUCCESS = "LOAD_POKEMON_SUCCESS";
 	var LOAD_POKEMON_LIST_ERROR = exports.LOAD_POKEMON_LIST_ERROR = "LOAD_POKEMON_ERROR";
+	var CAPTURE_POKEMON = exports.CAPTURE_POKEMON = "CAPTURE_POKEMON";
+	var CAPTURE_POKEMON_SUCCESS = exports.CAPTURE_POKEMON_SUCCESS = "CAPTURE_POKEMON_SUCCESS";
+	var CAPTURE_POKEMON_ERROR = exports.CAPTURE_POKEMON_ERROR = "CAPTURE_POKEMON_ERROR";
 
-	var loadPokemonList = exports.loadPokemonList = function loadPokemonList(page) {
-	  return {
-	    type: LOAD_POKEMON_LIST,
-	    page: page
-	  };
+	var loadPokemonList = exports.loadPokemonList = function loadPokemonList() {
+	    return {
+	        type: LOAD_POKEMON_LIST
+	    };
+	};
+
+	var capturePokemon = exports.capturePokemon = function capturePokemon(id) {
+	    return {
+	        type: CAPTURE_POKEMON,
+	        id: id
+	    };
 		};
 
 /***/ }),
@@ -9066,26 +9094,32 @@
 
 	var _actions = __webpack_require__(329);
 
+	var _lib = __webpack_require__(327);
+
 	var _ReduxObservable = ReduxObservable,
 	    combineEpics = _ReduxObservable.combineEpics,
 	    createEpicMiddleware = _ReduxObservable.createEpicMiddleware;
 	var _Rx = Rx,
-	    ajax = _Rx.Observable.ajax;
+	    Observable = _Rx.Observable;
 
 	var LIMIT = 30;
-	var offset = function offset(page) {
+	var calcOffset = function calcOffset(page) {
 	  return LIMIT * page;
 	};
 
-	var loadPokemonListEpic = function loadPokemonListEpic(action$) {
-	  return action$.ofType(_actions.LOAD_POKEMON_LIST).mergeMap(function (_ref) {
-	    var page = _ref.page;
+	var loadPokemonListEpic = function loadPokemonListEpic(action$, store) {
+	  return action$.ofType(_actions.LOAD_POKEMON_LIST).mergeMap(function () {
+	    var _store$getState = store.getState(),
+	        page = _store$getState.pokemon.page;
 
-	    return ajax.getJSON("https://pokeapi.co/api/v2/pokemon/?limit=" + LIMIT + "&offset=" + offset(page)).map(function (response) {
+	    var offset = calcOffset(page);
+	    return listPokemonFromCache(offset).flatMap(function (result) {
+	      if (result.length > 0) return Observable.of(result);
+	      return listFromNetwork(offset);
+	    }).map(function (items) {
 	      return {
 	        type: _actions.LOAD_POKEMON_LIST_SUCCESS,
-	        items: response.results,
-	        page: page + 1
+	        items: items
 	      };
 	    }).catch(function () {
 	      return Rx.Observable.of({
@@ -9095,7 +9129,99 @@
 	  });
 	};
 
-	var rootEpic = combineEpics(loadPokemonListEpic);
+	var addProperties = function addProperties(item) {
+	  var id = Number(R.last(R.match(/\/([0-9]+)\//, item.url)));
+	  return R.merge({
+	    id: id,
+	    captured: false,
+	    avatarUrl: (0, _lib.getAvatarUrl)(id)
+	  }, item);
+	};
+	var mapResults = R.map(addProperties);
+
+	var saveResults = function saveResults(results) {
+	  _lib.dbPromise.then(function (db) {
+	    var tx = db.transaction("pokemon", "readwrite");
+	    var pokemonStore = tx.objectStore("pokemon");
+	    var _iteratorNormalCompletion = true;
+	    var _didIteratorError = false;
+	    var _iteratorError = undefined;
+
+	    try {
+	      for (var _iterator = results[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	        var p = _step.value;
+
+	        pokemonStore.put(p);
+	      }
+	    } catch (err) {
+	      _didIteratorError = true;
+	      _iteratorError = err;
+	    } finally {
+	      try {
+	        if (!_iteratorNormalCompletion && _iterator.return) {
+	          _iterator.return();
+	        }
+	      } finally {
+	        if (_didIteratorError) {
+	          throw _iteratorError;
+	        }
+	      }
+	    }
+
+	    return tx.complete;
+	  });
+	};
+
+	var capturePokemonEpic = function capturePokemonEpic(action$, store) {
+	  return action$.ofType(_actions.CAPTURE_POKEMON).mergeMap(function (_ref) {
+	    var id = _ref.id;
+
+	    return Observable.fromPromise(updateCapturedPokemon(id)).mapTo({
+	      type: _actions.CAPTURE_POKEMON_SUCCESS,
+	      id: id
+	    });
+	  });
+	};
+
+	var updateCapturedPokemon = function updateCapturedPokemon(id) {
+	  return _lib.dbPromise.then(function (db) {
+	    var tx = db.transaction("pokemon", "readwrite");
+	    var pokemonStore = tx.objectStore("pokemon");
+	    return pokemonStore.get(id).then(function (result) {
+	      pokemonStore.put(R.evolve({ captured: R.not }, result));
+	    });
+	  });
+	};
+
+	var listPokemonFromCache = function listPokemonFromCache(offset) {
+	  return Observable.create(function (observer) {
+	    var result = [];
+	    _lib.dbPromise.then(function (db) {
+	      return db.transaction("pokemon").objectStore("pokemon").openCursor();
+	    }).then(function (cursor) {
+	      if (!cursor) return;
+	      return offset > 0 ? cursor.advance(offset) : cursor;
+	    }).then(function getPokemon(cursor) {
+	      if (!cursor) return;
+	      result.push(cursor.value);
+	      if (result.length === LIMIT) return;
+	      return cursor.continue().then(getPokemon);
+	    }).then(function () {
+	      observer.next(result);
+	      observer.complete();
+	    });
+	  });
+	};
+
+	var listFromNetwork = function listFromNetwork(offset) {
+	  return Observable.ajax.getJSON("https://pokeapi.co/api/v2/pokemon/?limit=" + LIMIT + "&offset=" + offset).map(function (response) {
+	    return mapResults(response.results);
+	  }).do(function (items) {
+	    return saveResults(items);
+	  });
+	};
+
+	var rootEpic = combineEpics(loadPokemonListEpic, capturePokemonEpic);
 
 	exports.default = createEpicMiddleware(rootEpic);
 
@@ -9108,16 +9234,15 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.Ripple = exports.Footer = exports.Main = exports.Header = exports.Wrapper = undefined;
+	exports.Footer = exports.Main = exports.Header = exports.Wrapper = undefined;
 
 	var _templateObject = _taggedTemplateLiteral(['\n  background-color: rgb(238, 238, 238);\n  position: absolute;\n  width: 100%;\n  height: 100%;\n  display: flex;\n  flex-direction: column;\n'], ['\n  background-color: rgb(238, 238, 238);\n  position: absolute;\n  width: 100%;\n  height: 100%;\n  display: flex;\n  flex-direction: column;\n']),
 	    _templateObject2 = _taggedTemplateLiteral(['\n  background-color: #B71C1C;\n  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);\n  padding-left: ', ';\n  padding-right: ', ';\n  min-height: 3.5rem;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  @media (max-width: 500px) {\n      min-height: auto;\n  }\n'], ['\n  background-color: #B71C1C;\n  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);\n  padding-left: ', ';\n  padding-right: ', ';\n  min-height: 3.5rem;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  @media (max-width: 500px) {\n      min-height: auto;\n  }\n']),
 	    _templateObject3 = _taggedTemplateLiteral(['\n  font-size: 3em;\n  color: white;\n  @media (max-width: 500px) {\n    font-size: 2em;\n  }\n'], ['\n  font-size: 3em;\n  color: white;\n  @media (max-width: 500px) {\n    font-size: 2em;\n  }\n']),
-	    _templateObject4 = _taggedTemplateLiteral(['\n  color: white;\n  font-size: 2.5em;\n  margin: 1rem;\n  line-height: 0.5;\n  @media (max-width: 500px) {\n    font-size: 1em;\n  }\n'], ['\n  color: white;\n  font-size: 2.5em;\n  margin: 1rem;\n  line-height: 0.5;\n  @media (max-width: 500px) {\n    font-size: 1em;\n  }\n']),
+	    _templateObject4 = _taggedTemplateLiteral(['\n  color: white;\n  font-size: 2.5em;\n  margin: 1rem;\n  line-height: 0.5;\n  @media (max-width: 500px) {\n    font-size: 1em;\n  }\n\n  @media (max-width: 350px) {\n    font-size: 0.8em;\n  }\n'], ['\n  color: white;\n  font-size: 2.5em;\n  margin: 1rem;\n  line-height: 0.5;\n  @media (max-width: 500px) {\n    font-size: 1em;\n  }\n\n  @media (max-width: 350px) {\n    font-size: 0.8em;\n  }\n']),
 	    _templateObject5 = _taggedTemplateLiteral(['\n  display: flex;\n  flex-grow: 1;\n'], ['\n  display: flex;\n  flex-grow: 1;\n']),
 	    _templateObject6 = _taggedTemplateLiteral(['\n    display: flex;\n    align-items: center; \n    height: 10%;\n    background-color: #B71C1C;\n    padding: 0.5rem;\n'], ['\n    display: flex;\n    align-items: center; \n    height: 10%;\n    background-color: #B71C1C;\n    padding: 0.5rem;\n']),
-	    _templateObject7 = _taggedTemplateLiteral(['\n  color: white;\n'], ['\n  color: white;\n']),
-	    _templateObject8 = _taggedTemplateLiteral(['\n  position: relative;\n  overflow: hidden;\n  transform: translate3d(0, 0, 0);\n\n  &:after {\n  content: "";\n  display: block;\n  position: absolute;\n  width: 100%;\n  height: 100%;\n  top: 0;\n  left: 0;\n  pointer-events: none;\n  background-image: radial-gradient(circle, #000 10%, transparent 10.01%);\n  background-repeat: no-repeat;\n  background-position: 50%;\n  transform: scale(10, 10);\n  opacity: 0;\n  transition: transform .5s, opacity 1s;\n}\n&:active:after {\n  transform: scale(0, 0);\n  opacity: .2;\n  transition: 0s;\n}\n'], ['\n  position: relative;\n  overflow: hidden;\n  transform: translate3d(0, 0, 0);\n\n  &:after {\n  content: "";\n  display: block;\n  position: absolute;\n  width: 100%;\n  height: 100%;\n  top: 0;\n  left: 0;\n  pointer-events: none;\n  background-image: radial-gradient(circle, #000 10%, transparent 10.01%);\n  background-repeat: no-repeat;\n  background-position: 50%;\n  transform: scale(10, 10);\n  opacity: 0;\n  transition: transform .5s, opacity 1s;\n}\n&:active:after {\n  transform: scale(0, 0);\n  opacity: .2;\n  transition: 0s;\n}\n']);
+	    _templateObject7 = _taggedTemplateLiteral(['\n  color: white;\n'], ['\n  color: white;\n']);
 
 	var _lib = __webpack_require__(327);
 
@@ -9176,9 +9301,7 @@
 	      'Zombispormedio 2017'
 	    )
 	  );
-	};
-
-	var Ripple = exports.Ripple = styled.div(_templateObject8);
+		};
 
 /***/ }),
 /* 332 */
@@ -9196,21 +9319,19 @@
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 	var _templateObject = _taggedTemplateLiteral(["\n  flex-grow: 1;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  overflow-y: auto;\n"], ["\n  flex-grow: 1;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  overflow-y: auto;\n"]),
-	    _templateObject2 = _taggedTemplateLiteral(["\n  display: flex;\n  justify-content: center;\n  margin-top: 1.5rem;\n  margin-button: 1.5rem;\n"], ["\n  display: flex;\n  justify-content: center;\n  margin-top: 1.5rem;\n  margin-button: 1.5rem;\n"]),
-	    _templateObject3 = _taggedTemplateLiteral(["\n  display: flex;\n  flex-direction: column;\n  align-items: stretch;\n"], ["\n  display: flex;\n  flex-direction: column;\n  align-items: stretch;\n"]),
-	    _templateObject4 = _taggedTemplateLiteral(["\n      height: 100%;\n      @media (min-width: 600px) {\n        width: 25rem !important;\n      }\n    "], ["\n      height: 100%;\n      @media (min-width: 600px) {\n        width: 25rem !important;\n      }\n    "]),
-	    _templateObject5 = _taggedTemplateLiteral(["\n  display: flex;\n  flex-direction: row;\n  border-bottom: ", ";\n  align-items: center;\n  padding: 0.3rem;\n  margin-left: 0.3rem;\n  margin-right: 0.3rem;\n"], ["\n  display: flex;\n  flex-direction: row;\n  border-bottom: ", ";\n  align-items: center;\n  padding: 0.3rem;\n  margin-left: 0.3rem;\n  margin-right: 0.3rem;\n"]),
-	    _templateObject6 = _taggedTemplateLiteral(["\n  text-transform: capitalize;\n  margin-left: 0.5rem;\n  font-size: 2em;\n  flex-grow: 1;\n"], ["\n  text-transform: capitalize;\n  margin-left: 0.5rem;\n  font-size: 2em;\n  flex-grow: 1;\n"]),
-	    _templateObject7 = _taggedTemplateLiteral(["\n  margin-bottom: inherit;\n"], ["\n  margin-bottom: inherit;\n"]),
-	    _templateObject8 = _taggedTemplateLiteral(["\n  font-size: 2em;\n  margin-right: 0.5rem;\n  cursor: pointer;\n  color: ", ";\n"], ["\n  font-size: 2em;\n  margin-right: 0.5rem;\n  cursor: pointer;\n  color: ", ";\n"]),
-	    _templateObject9 = _taggedTemplateLiteral([" \n    width: auto;\n    padding-left: 0.5rem;\n    padding-right: 0.5rem;\n    background-color: #B71C1C;\n    text-align: center;\n    cursor: pointer;\n    color: white;\n    box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);\n    border-radius: 2px;\n    "], [" \n    width: auto;\n    padding-left: 0.5rem;\n    padding-right: 0.5rem;\n    background-color: #B71C1C;\n    text-align: center;\n    cursor: pointer;\n    color: white;\n    box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);\n    border-radius: 2px;\n    "]),
-	    _templateObject10 = _taggedTemplateLiteral(["\n    display: flex;\n    justify-content: center;\n    margin-top: 1.5rem;\n    margin-bottom: 1.5rem;\n    "], ["\n    display: flex;\n    justify-content: center;\n    margin-top: 1.5rem;\n    margin-bottom: 1.5rem;\n    "]);
+	    _templateObject2 = _taggedTemplateLiteral(["\n  display: flex;\n  flex-direction: column;\n  align-items: stretch;\n"], ["\n  display: flex;\n  flex-direction: column;\n  align-items: stretch;\n"]),
+	    _templateObject3 = _taggedTemplateLiteral(["\n      height: 100%;\n      @media (min-width: 600px) {\n        width: 25rem !important;\n      }\n    "], ["\n      height: 100%;\n      @media (min-width: 600px) {\n        width: 25rem !important;\n      }\n    "]),
+	    _templateObject4 = _taggedTemplateLiteral(["\n  display: flex;\n  flex-direction: row;\n  border-bottom: ", ";\n  align-items: center;\n  padding: 0.3rem;\n  @media only screen and (min-width: 600px) {\n    margin-left: 0.3rem;\n    margin-right: 0.3rem;\n  }\n"], ["\n  display: flex;\n  flex-direction: row;\n  border-bottom: ", ";\n  align-items: center;\n  padding: 0.3rem;\n  @media only screen and (min-width: 600px) {\n    margin-left: 0.3rem;\n    margin-right: 0.3rem;\n  }\n"]),
+	    _templateObject5 = _taggedTemplateLiteral(["\n  text-transform: capitalize;\n  margin-left: 0.5rem;\n  font-size: 2em;\n  flex-grow: 1;\n  @media (max-width: 500px) {\n    font-size: 1.3em;\n  }\n\n  @media (max-width: 400px) {\n    font-size: 1em;\n  }\n"], ["\n  text-transform: capitalize;\n  margin-left: 0.5rem;\n  font-size: 2em;\n  flex-grow: 1;\n  @media (max-width: 500px) {\n    font-size: 1.3em;\n  }\n\n  @media (max-width: 400px) {\n    font-size: 1em;\n  }\n"]),
+	    _templateObject6 = _taggedTemplateLiteral(["\n  margin-bottom: inherit;\n"], ["\n  margin-bottom: inherit;\n"]),
+	    _templateObject7 = _taggedTemplateLiteral(["\n  font-size: 2em;\n  margin-right: 0.5rem;\n  cursor: pointer;\n  padding-top: 0.2rem;\n  padding-bottom: 0.1rem;\n  color: ", ";\n  user-select: none;\n"], ["\n  font-size: 2em;\n  margin-right: 0.5rem;\n  cursor: pointer;\n  padding-top: 0.2rem;\n  padding-bottom: 0.1rem;\n  color: ", ";\n  user-select: none;\n"]),
+	    _templateObject8 = _taggedTemplateLiteral(["\n  display: flex;\n  justify-content: center;\n  margin-top: 1.5rem;\n  margin-button: 1.5rem;\n"], ["\n  display: flex;\n  justify-content: center;\n  margin-top: 1.5rem;\n  margin-button: 1.5rem;\n"]),
+	    _templateObject9 = _taggedTemplateLiteral(["\n  width: auto;\n  padding-left: 0.5rem;\n  padding-right: 0.5rem;\n  background-color: #b71c1c;\n  text-align: center;\n  cursor: pointer;\n  color: white;\n  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);\n  border-radius: 2px;\n"], ["\n  width: auto;\n  padding-left: 0.5rem;\n  padding-right: 0.5rem;\n  background-color: #b71c1c;\n  text-align: center;\n  cursor: pointer;\n  color: white;\n  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);\n  border-radius: 2px;\n"]),
+	    _templateObject10 = _taggedTemplateLiteral(["\n  display: flex;\n  justify-content: center;\n  margin-top: 1.5rem;\n  margin-bottom: 1.5rem;\n"], ["\n  display: flex;\n  justify-content: center;\n  margin-top: 1.5rem;\n  margin-bottom: 1.5rem;\n"]);
 
 	var _actions = __webpack_require__(329);
 
 	var _lib = __webpack_require__(327);
-
-	var _components = __webpack_require__(331);
 
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
@@ -9228,17 +9349,7 @@
 
 	var PokeListWrapper = styled.div(_templateObject);
 
-	var LoadingSpinnerWrapper = styled.div(_templateObject2);
-
-	var LoadingSpinner = function LoadingSpinner() {
-	  return React.createElement(
-	    LoadingSpinnerWrapper,
-	    null,
-	    "Loading..."
-	  );
-	};
-
-	var ScrollWrapper = styled.div(_templateObject3);
+	var ScrollWrapper = styled.div(_templateObject2);
 
 	var ScrollView = function (_React$Component) {
 	  _inherits(ScrollView, _React$Component);
@@ -9263,7 +9374,7 @@
 	  }, {
 	    key: "render",
 	    value: function render() {
-	      var StyledReactScrollbars = styled(ReactScrollbars)(_templateObject4);
+	      var StyledReactScrollbars = styled(ReactScrollbars)(_templateObject3);
 
 	      return React.createElement(
 	        StyledReactScrollbars,
@@ -9280,15 +9391,15 @@
 	  return ScrollView;
 	}(React.Component);
 
-	var ListItemWrapper = styled.div(_templateObject5, function (props) {
+	var ListItemWrapper = styled.div(_templateObject4, function (props) {
 	  return props.divider ? "solid 1px #8c8b8b" : "none";
 	});
 
-	var TitleName = styled.div(_templateObject6);
+	var TitleName = styled.div(_templateObject5);
 
-	var Avatar = styled.img(_templateObject7);
+	var Avatar = styled.img(_templateObject6);
 
-	var Checkbox = styled.div(_templateObject8, function (props) {
+	var Checkbox = styled.div(_templateObject7, function (props) {
 	  return props.checked ? "#4CAF50" : "black";
 	});
 
@@ -9306,7 +9417,6 @@
 
 	    var _this2 = _possibleConstructorReturn(this, (ListItem.__proto__ || Object.getPrototypeOf(ListItem)).call(this));
 
-	    _this2.state = { checked: props.item.captured };
 	    _this2.handleCheckbox = _this2.handleCheckbox.bind(_this2);
 	    return _this2;
 	  }
@@ -9314,7 +9424,7 @@
 	  _createClass(ListItem, [{
 	    key: "handleCheckbox",
 	    value: function handleCheckbox() {
-	      this.setState({ checked: !this.state.checked });
+	      this.props.capture(this.props.item.id);
 	    }
 	  }, {
 	    key: "render",
@@ -9322,19 +9432,18 @@
 	      var _props = this.props,
 	          item = _props.item,
 	          divider = _props.divider;
-	      var checked = this.state.checked;
 
 
 	      return React.createElement(
 	        ListItemWrapper,
 	        { divider: divider },
-	        React.createElement(Avatar, { src: (0, _lib.getAvatarUrl)(item.id) }),
+	        React.createElement(Avatar, { src: item.avatarUrl }),
 	        React.createElement(
 	          TitleName,
 	          null,
 	          item.name
 	        ),
-	        React.createElement(PokeCheckbox, { checked: checked, onClick: this.handleCheckbox })
+	        React.createElement(PokeCheckbox, { checked: item.captured, onClick: this.handleCheckbox })
 	      );
 	    }
 	  }]);
@@ -9342,70 +9451,84 @@
 	  return ListItem;
 	}(React.Component);
 
-	var ListComponent = function (_React$Component3) {
-	  _inherits(ListComponent, _React$Component3);
+	var LoadingSpinnerWrapper = styled.div(_templateObject8);
 
-	  function ListComponent() {
-	    _classCallCheck(this, ListComponent);
+	var LoadingSpinner = function (_React$Component3) {
+	  _inherits(LoadingSpinner, _React$Component3);
 
-	    var _this3 = _possibleConstructorReturn(this, (ListComponent.__proto__ || Object.getPrototypeOf(ListComponent)).call(this));
+	  function LoadingSpinner() {
+	    _classCallCheck(this, LoadingSpinner);
 
-	    _this3.loadMore = _this3.loadMore.bind(_this3);
-	    return _this3;
+	    return _possibleConstructorReturn(this, (LoadingSpinner.__proto__ || Object.getPrototypeOf(LoadingSpinner)).apply(this, arguments));
 	  }
 
-	  _createClass(ListComponent, [{
-	    key: "componentDidMount",
-	    value: function componentDidMount() {
-	      this.loadMore();
+	  _createClass(LoadingSpinner, [{
+	    key: "render",
+	    value: function render() {
+	      return this.props.loading ? React.createElement(
+	        LoadingSpinnerWrapper,
+	        null,
+	        "Loading..."
+	      ) : null;
 	    }
-	  }, {
-	    key: "loadMore",
-	    value: function loadMore() {
-	      var _props2 = this.props,
-	          page = _props2.page,
-	          loadPage = _props2.loadPage;
+	  }]);
 
-	      loadPage(page);
-	    }
-	  }, {
-	    key: "getSpinner",
-	    value: function getSpinner() {
-	      return this.props.loading ? React.createElement(LoadingSpinner, null) : null;
-	    }
-	  }, {
-	    key: "getLoadMoreButton",
-	    value: function getLoadMoreButton() {
-	      var LoadMoreButton = _components.Ripple.extend(_templateObject9);
-	      var LoadMoreWrapper = styled.div(_templateObject10);
+	  return LoadingSpinner;
+	}(React.Component);
+
+	var LoadMoreButton = _lib.Ripple.extend(_templateObject9);
+	var LoadMoreWrapper = styled.div(_templateObject10);
+
+	var LoadMoreComponent = function (_React$Component4) {
+	  _inherits(LoadMoreComponent, _React$Component4);
+
+	  function LoadMoreComponent() {
+	    _classCallCheck(this, LoadMoreComponent);
+
+	    return _possibleConstructorReturn(this, (LoadMoreComponent.__proto__ || Object.getPrototypeOf(LoadMoreComponent)).apply(this, arguments));
+	  }
+
+	  _createClass(LoadMoreComponent, [{
+	    key: "render",
+	    value: function render() {
 	      return !this.props.loading ? React.createElement(
 	        LoadMoreWrapper,
 	        null,
 	        React.createElement(
 	          LoadMoreButton,
-	          { onClick: this.loadMore },
+	          { onClick: this.props.loadMore },
 	          this.props.error ? 'Something happens... Retry?' : 'Load More'
 	        )
 	      ) : null;
 	    }
-	  }, {
-	    key: "getListItems",
-	    value: function getListItems() {
-	      var length = this.props.items.length;
-	      return this.props.items.map(function (item, i) {
-	        return React.createElement(ListItem, { item: item, divider: i !== length - 1 });
-	      });
+	  }]);
+
+	  return LoadMoreComponent;
+	}(React.Component);
+
+	var ListComponent = function (_React$Component5) {
+	  _inherits(ListComponent, _React$Component5);
+
+	  function ListComponent() {
+	    _classCallCheck(this, ListComponent);
+
+	    return _possibleConstructorReturn(this, (ListComponent.__proto__ || Object.getPrototypeOf(ListComponent)).apply(this, arguments));
+	  }
+
+	  _createClass(ListComponent, [{
+	    key: "componentDidMount",
+	    value: function componentDidMount() {
+	      this.props.loadMore();
 	    }
 	  }, {
 	    key: "render",
 	    value: function render() {
-	      return React.createElement(
-	        "div",
-	        null,
-	        this.getListItems(),
-	        this.getSpinner(),
-	        this.getLoadMoreButton()
-	      );
+	      var _this6 = this;
+
+	      var length = this.props.items.length;
+	      return this.props.items.map(function (item, i) {
+	        return React.createElement(ListItem, { item: item, divider: i !== length - 1, capture: _this6.props.capture });
+	      });
 	    }
 	  }]);
 
@@ -9413,19 +9536,36 @@
 	}(React.Component);
 
 	var ConnectableList = connect(function (_ref2) {
-	  var _ref2$pokemon = _ref2.pokemon,
-	      items = _ref2$pokemon.items,
-	      page = _ref2$pokemon.page,
-	      loading = _ref2$pokemon.loading,
-	      error = _ref2$pokemon.error;
-	  return { items: items, page: page, loading: loading, error: error };
+	  var items = _ref2.pokemon.items;
+	  return { items: items };
 	}, function (dispatch) {
 	  return {
-	    loadPage: function loadPage(page) {
-	      return dispatch((0, _actions.loadPokemonList)(page));
+	    capture: function capture(id) {
+	      return dispatch((0, _actions.capturePokemon)(id));
+	    },
+	    loadMore: function loadMore() {
+	      return dispatch((0, _actions.loadPokemonList)());
 	    }
 	  };
 	})(ListComponent);
+
+	var ConnectableLoadMoreButton = connect(function (_ref3) {
+	  var _ref3$pokemon = _ref3.pokemon,
+	      loading = _ref3$pokemon.loading,
+	      error = _ref3$pokemon.error;
+	  return { loading: loading, error: error };
+	}, function (dispatch) {
+	  return {
+	    loadMore: function loadMore() {
+	      return dispatch((0, _actions.loadPokemonList)());
+	    }
+	  };
+	})(LoadMoreComponent);
+
+	var ConnectableLoadingSpinner = connect(function (_ref4) {
+	  var loading = _ref4.pokemon.loading;
+	  return { loading: loading };
+	})(LoadingSpinner);
 
 	var PokeList = exports.PokeList = function PokeList() {
 	  return React.createElement(
@@ -9434,7 +9574,9 @@
 	    React.createElement(
 	      ScrollView,
 	      null,
-	      React.createElement(ConnectableList, null)
+	      React.createElement(ConnectableList, null),
+	      React.createElement(ConnectableLoadingSpinner, null),
+	      React.createElement(ConnectableLoadMoreButton, null)
 	    )
 	  );
 		};

@@ -1,4 +1,6 @@
-const cacheVersion = 'cache-10';
+const cacheVersion = 'cache-100';
+const cacheContentImages = 'pokedex-content-imgs';
+
 self.addEventListener('install', function (event) {
   event.waitUntil(
     caches.open(cacheVersion).then(function (cache) {
@@ -24,7 +26,7 @@ self.addEventListener('activate', function (event) {
       return Promise.all(
         cacheNames.filter(function (cacheName) {
           return cacheName.startsWith('cache-') &&
-            cacheName != cacheVersion;
+            !cacheName.includes([cacheVersion, cacheContentImages]);
         }).map(function (cacheName) {
           return caches.delete(cacheName);
         })
@@ -33,9 +35,30 @@ self.addEventListener('activate', function (event) {
   );
 });
 self.addEventListener('fetch', function (event) {
+  
+  if(event.request.url.startsWith('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/')){
+    event.respondWith(serveAvatar(event.request));
+    return;
+  }
+  
   event.respondWith(
     caches.match(event.request).then(function (response) {
       return response || fetch(event.request);
     })
   );
 });
+
+ function serveAvatar(request) {
+  var storageUrl = request.url
+
+  return caches.open(cacheContentImages).then(function(cache) {
+    return cache.match(storageUrl).then(function(response) {
+      if (response) return response;
+
+      return fetch(request).then(function(networkResponse) {
+        cache.put(storageUrl, networkResponse.clone());
+        return networkResponse;
+      });
+    });
+  });
+}
