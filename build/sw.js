@@ -26,7 +26,7 @@ self.addEventListener('activate', function (event) {
       return Promise.all(
         cacheNames.filter(function (cacheName) {
           return cacheName.startsWith('cache-') &&
-            !cacheName.includes([cacheVersion, cacheContentImages]);
+            ![cacheVersion, cacheContentImages].includes(cacheName);
         }).map(function (cacheName) {
           return caches.delete(cacheName);
         })
