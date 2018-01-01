@@ -1,35 +1,3 @@
-const IgnoredFilter = item => !self.environment.CACHE_IGNORED.includes(item)
-
-const resolveAssets = ({ inboundAssets = [], defaultAssets = [] }) => {
-	const inbound = inboundAssets
-		.map(({ name }) => name)
-		.filter(IgnoredFilter)
-		.map(item => `/${item}`)
-		.map(item => {
-			if (item.startsWith("/assets/fonts")) {
-				return `${item}?v=2.1.19`
-			}
-			return item
-		})
-	return [...defaultAssets, ...inbound]
-}
-
-const inboundAssetsPromise = () =>
-	fetch(self.environment.ASSETS_JSON_PATH).then(res => res.json())
-
-const doAssetsCache = function() {
-	const { CACHE_NAME, DEFAULT_ASSETS } = self.environment
-	return Promise.all([inboundAssetsPromise(), caches.open(CACHE_NAME)]).then(
-		function([inboundAssets, cache]) {
-			const assets = resolveAssets({
-				inboundAssets,
-				defaultAssets: DEFAULT_ASSETS
-			})
-			return cache.addAll(assets)
-		}
-	)
-}
-
 self.addEventListener("install", function(event) {
 	event.waitUntil(
 		fetch("sw.json")
@@ -86,4 +54,31 @@ function serveAvatar(request) {
 			})
 		})
 	})
+}
+
+function doAssetsCache() {
+	const {
+		CACHE_NAME,
+		DEFAULT_ASSETS,
+		ASSETS_JSON_PATH,
+		CACHE_IGNORED
+	} = self.environment
+
+	const inboundAssetsPromise = fetch(ASSETS_JSON_PATH).then(res => res.json())
+
+	return Promise.all([inboundAssetsPromise, caches.open(CACHE_NAME)]).then(
+		([inboundAssets, cache]) => {
+			const inbound = inboundAssets
+				.map(({ name }) => name)
+				.filter(item => !CACHE_IGNORED.includes(item))
+				.map(item => `/${item}`)
+				.map(item => {
+					if (item.startsWith("/assets/fonts")) {
+						return `${item}?v=2.1.19`
+					}
+					return item
+				})
+			return cache.addAll([...DEFAULT_ASSETS, ...inbound])
+		}
+	)
 }
